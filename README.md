@@ -5,7 +5,7 @@ Bu proje, ödeme verileri üzerinde, dengesiz veri setlerinde (imbalanced datase
 
 ---
 
-## 🏆 Başarı Metrikleri (Şampiyon Model)
+##  Başarı Metrikleri 
 
 Modelin başarısı, klasik doğruluk (accuracy) yerine, operasyonel iş değerine odaklanan **Top-1% Recall** metriği ile ölçülmüştür.
 
@@ -17,14 +17,14 @@ Modelin başarısı, klasik doğruluk (accuracy) yerine, operasyonel iş değeri
 
 ---
 
-## 🚀 Proje Mimarisi ve Stratejik Yaklaşım
+##  Proje Mimarisi ve Stratejik Yaklaşım
 
 Standart bir sınıflandırma probleminden farklı olarak, bu projede **3 katmanlı bir optimisazyon stratejisi** uygulanmıştır:
 
-### 1. Leakage-Free Feature Engineering (Sızıntısız Özellik Mühendisliği)
+### 1. Leakage-Free Feature Engineering 
 Geleceği görme (data leakage) hatasını önlemek için tüm hesaplamalarda **`closed='left'`** pencereleme yöntemi kullanılmıştır. Model, işlem anındaki veriyi görmez, sadece o andan önceki tarihçeyi analiz eder.
 
-### 2. Multi-Entity Velocity (Çoklu Varlık Hızı)
+### 2. Multi-Entity Velocity
 Dolandırıcılar kartı değiştirse bile davranış izlerini bırakır. Bu nedenle sadece Kart ID değil, üç farklı boyutta hız profili çıkarılmıştır:
 * **Card Velocity:** Kartın son 1 saat/24 saatteki hareketliliği.
 * **User Velocity (GSM):** Kart değişse bile, aynı telefon numarasından yapılan işlem sıklığı.
@@ -37,7 +37,7 @@ Standart modellemede `Early Stopping` kullanıldığında modelin %51.6 başarı
 
 ---
 
-## 📈 Etki Analizi (Ablation Study)
+##  Etki Analizi (Ablation Study)
 
 Yapılan mühendislik çalışmalarının modele net katkısı sayısal olarak kanıtlanmıştır:
 
@@ -47,7 +47,7 @@ Yapılan mühendislik çalışmalarının modele net katkısı sayısal olarak k
 
 ---
 
-## 🛠 Validasyon Stratejisi: Time-Based Quantile Split
+##  Validasyon Stratejisi: Time-Based Quantile Split
 
 Fraud dinamik bir yapıdadır. Rastgele (Random) ayrım yerine, gerçek hayat senaryosunu simüle eden **Zaman Bazlı Ayrım** kullanılmıştır:
 
@@ -57,7 +57,7 @@ Fraud dinamik bir yapıdadır. Rastgele (Random) ayrım yerine, gerçek hayat se
 
 ---
 
-## 📂 Dosya ve Notebook Yapısı
+##  Dosya ve Notebook Yapısı
 
 * **`00_EDA.ipynb`**: Veriyi anlama, eksik veri analizi, zaman dağılımı ve test setindeki fraud azlığının (Dataset Shift) tespiti.
 * **`01_Feature_Engineering.ipynb`**: Ham veriden sızıntısız (leakage-free) hız, oran ve zaman farkı değişkenlerinin üretilmesi.
@@ -68,7 +68,7 @@ Fraud dinamik bir yapıdadır. Rastgele (Random) ayrım yerine, gerçek hayat se
 
 ---
 
-## ⚙️ Kurulum ve Çalıştırma
+##  Kurulum ve Çalıştırma
 
 1.  **Gereksinimleri Yükleyin:**
     ```bash
@@ -79,7 +79,7 @@ Fraud dinamik bir yapıdadır. Rastgele (Random) ayrım yerine, gerçek hayat se
 
 ---
 
-## 💻 Kullanılan Teknolojiler
+##  Kullanılan Teknolojiler
 
 * **Dil:** Python 3.10+
 * **Model:** CatBoost Classifier
