@@ -1,43 +1,88 @@
+# 🛒 Fraud Detection
+### Multi-Entity Velocity Modeling & Deep Training Strategy
 
+Bu proje, ödeme verileri üzerinde, dengesiz veri setlerinde (imbalanced datasets) dolandırıcılık tespitini optimize etmek amacıyla geliştirilmiştir. Toplam **3.12 Milyon işlem** içinde sadece **%0.315** (Binde 3) oranında bulunan fraud vakalarını, operasyonel verimliliği maksimize edecek şekilde tespit eder.
 
-iyzico Fraud Detection Case Study
+---
 
-Proje Özeti ve Başarı Metrikleri
-ROC-AUC: 0.984 Anlamı: Modelin genel sıralama başarısı.
-Top-1% Recall: %54.5 Anlamı: Operasyon ekibi işlemlerin sadece yüzde 1'ini inceleyerek, tüm dolandırıcılıkların yarısından fazlasını yakalayabilir.
-Valid PR-AUC: 0.274 Anlamı: Dengesiz veri setinde modelin başarısı.
+## 🏆 Başarı Metrikleri (Şampiyon Model)
 
-Proje Mimarisi ve Yaklaşım
-Bu projeyi standart bir sınıflandırma probleminden ayıran 3 temel strateji uygulanmıştır:
-Leakage-Free Feature Engineering (Sızıntısız Özellik Mühendisliği) Geleneksel yöntemlerde yapılan geleceği görme hatası, closed='left' parametresi ile engellenmiştir. Değişkenler hesaplanırken işlem anındaki veri değil, sadece geçmiş veri kullanılmıştır.
-Multi-Entity Velocity (Çoklu Varlık Hızı) Dolandırıcılar kartı değiştirse bile davranış izlerini bırakır. Bu yüzden sadece Kart ID değil, üç farklı boyutta hız analizi yapılmıştır:
-Card Velocity: Kartın son 1 saat ve 24 saatteki hareketliliği.
+Modelin başarısı, klasik doğruluk (accuracy) yerine, operasyonel iş değerine odaklanan **Top-1% Recall** metriği ile ölçülmüştür.
 
-User Velocity (GSM): Aynı telefon numarasından yapılan işlem sıklığı.
+| Metrik | Değer | İş Anlamı |
+| :--- | :--- | :--- |
+| **Top-1% Recall** | **%55.8** | Operasyon ekibi işlemlerin **sadece %1'ini** inceleyerek, tüm dolandırıcılıkların **%55.8'ini** yakalayabilir. |
+| **ROC-AUC** | **0.981** | Modelin suçlu ile masumu genel ayırma başarısı. |
+| **Verimlilik Artışı** | **56 Kat** | Rastgele incelemeye kıyasla 56 kat daha verimli operasyon. |
 
-Merchant Velocity: İş yerine yapılan ani yüklenmeler.
+---
 
-Ablation Study (Etki Analizi) Hangi özellik grubunun modele ne kadar katkı sağladığı test edilmiştir. Sadece kart verisi kullanıldığında düşük olan yakalama oranı, GSM ve Merchant verileri eklendiğinde ciddi oranda artmıştır.
+## 🚀 Proje Mimarisi ve Stratejik Yaklaşım
 
-Dosya ve Notebook Yapısı
-00_EDA.ipynb: Veriyi anlama, eksik veri analizi, zaman dağılımı ve test setindeki fraud azlığının tespiti.
+Standart bir sınıflandırma probleminden farklı olarak, bu projede **3 katmanlı bir optimisazyon stratejisi** uygulanmıştır:
 
-01_Feature_Engineering.ipynb: Ham veriden hız, oran ve zaman farkı değişkenlerinin sızıntısız olarak üretilmesi.
+### 1. Leakage-Free Feature Engineering (Sızıntısız Özellik Mühendisliği)
+Geleceği görme (data leakage) hatasını önlemek için tüm hesaplamalarda **`closed='left'`** pencereleme yöntemi kullanılmıştır. Model, işlem anındaki veriyi görmez, sadece o andan önceki tarihçeyi analiz eder.
 
-02_Model_Selection_Ablation.ipynb: Hangi değişken setlerinin modele katkı sağladığının analizi.
+### 2. Multi-Entity Velocity (Çoklu Varlık Hızı)
+Dolandırıcılar kartı değiştirse bile davranış izlerini bırakır. Bu nedenle sadece Kart ID değil, üç farklı boyutta hız profili çıkarılmıştır:
+* **Card Velocity:** Kartın son 1 saat/24 saatteki hareketliliği.
+* **User Velocity (GSM):** Kart değişse bile, aynı telefon numarasından yapılan işlem sıklığı.
+* **Merchant Velocity:** İş yerine yapılan ani yüklenme saldırıları (Attack Vectors).
 
-03_Train_Model.ipynb: Final CatBoost modelinin eğitilmesi. Model dosyasının ve eğitim parametrelerinin kaydedilmesi.
+### 3. Deep Training Stratejisi (No Early Stopping)
+Standart modellemede `Early Stopping` kullanıldığında modelin %51.6 başarıda tıkandığı görülmüştür.
+* **Müdahale:** Erken durdurma devre dışı bırakılmış ve modelin **1200 iterasyon** boyunca "zor ve karmaşık" fraud desenlerini öğrenmesine izin verilmiştir.
+* **Sonuç:** Bu strateji performansı **%51.6'dan %55.8'e** taşımıştır.
 
-04_Inference_Demo.ipynb: Canlı ortam simülasyonu. Modelin yüklenip yeni gelen veriye tahmin üretmesi.
+---
 
-05_Feature_Importance.ipynb: Modelin yorumlanabilirliği. Değişken önem düzeyleri ve SHAP analizi.
+## 📈 Etki Analizi (Ablation Study)
 
-Kurulum ve Çalıştırma
-Gerekli kütüphaneleri yükleyin: pip install -r requirements.txt
+Yapılan mühendislik çalışmalarının modele net katkısı sayısal olarak kanıtlanmıştır:
 
-Veri setini data/raw/ klasörüne ekleyin.
+* **Baseline (Ham Veri):** %44.7 Recall (Temel kurallar).
+* **+ Velocity Features:** %51.6 Recall (Davranışsal analiz eklendiğinde).
+* **+ Deep Training (Final):** **%55.8 Recall** (Öğrenme kısıtları kaldırıldığında).
 
-Notebookları sırasıyla çalıştırın (00 -> 05).
+---
 
-Kullanılan Teknolojiler
-Dil: Python 3.10+ Model: CatBoost Analiz: Pandas, NumPy, Matplotlib, Seaborn Açıklanabilirlik: SHAP
+## 🛠 Validasyon Stratejisi: Time-Based Quantile Split
+
+Fraud dinamik bir yapıdadır. Rastgele (Random) ayrım yerine, gerçek hayat senaryosunu simüle eden **Zaman Bazlı Ayrım** kullanılmıştır:
+
+* **Train (%70):** Temmuz - Ağustos (Geçmiş).
+* **Validation (%15):** Eylül Başı (Optimizasyon).
+* **Test (%15):** Eylül Sonu (Gelecek - Hiç görülmemiş veri).
+
+---
+
+## 📂 Dosya ve Notebook Yapısı
+
+* **`00_EDA.ipynb`**: Veriyi anlama, eksik veri analizi, zaman dağılımı ve test setindeki fraud azlığının (Dataset Shift) tespiti.
+* **`01_Feature_Engineering.ipynb`**: Ham veriden sızıntısız (leakage-free) hız, oran ve zaman farkı değişkenlerinin üretilmesi.
+* **`02_Model_Selection_Ablation.ipynb`**: Farklı özellik setlerinin (Ham vs Velocity) modele katkısının izole testlerle ölçülmesi.
+* **`03_Train_Model.ipynb`**: **Deep Training** stratejisi ile final CatBoost modelinin eğitilmesi. Model ve artifactlerin (JSON) kaydedilmesi.
+* **`04_Inference_Demo.ipynb`**: Canlı ortam simülasyonu. `Schema Enforcement` ile güvenli tahmin üretimi.
+* **`05_Feature_Importance.ipynb`**: Modelin yorumlanabilirliği. SHAP analizi ile karar mekanizmasının doğrulanması.
+
+---
+
+## ⚙️ Kurulum ve Çalıştırma
+
+1.  **Gereksinimleri Yükleyin:**
+    ```bash
+    pip install -r requirements.txt
+    ```
+2.  **Veri Seti:** `iyzico_fraud_data.csv` dosyasını `data/raw/` klasörüne ekleyin.
+3.  **Pipeline'ı Çalıştırın:** Notebookları sırasıyla (00 -> 05) çalıştırın.
+
+---
+
+## 💻 Kullanılan Teknolojiler
+
+* **Dil:** Python 3.10+
+* **Model:** CatBoost Classifier
+* **Analiz:** Pandas, NumPy
+* **Görselleştirme:** Matplotlib, Seaborn
+* **Açıklanabilirlik:** SHAP
